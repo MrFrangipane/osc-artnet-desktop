@@ -11,6 +11,8 @@ class ListenerWidget(QTableView):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        self.setWindowTitle("OSC ArtNet monitor")
+
         self._listener = Listener()
         self._model = Model()
 
