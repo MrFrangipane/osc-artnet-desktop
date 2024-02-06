@@ -1,11 +1,9 @@
-import time
-
 from PySide6.QtCore import QObject, Signal, QTimer
 from stupidArtnet import StupidArtnetServer
 
 
 class Listener(QObject):
-    dataChanged = Signal(int, int)
+    dataChanged = Signal(list)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -24,8 +22,5 @@ class Listener(QObject):
 
     def _timeout(self):
         data = self._stupid_artnet.get_buffer(self._listener_id)
-        for index, (now, previous) in enumerate(zip(data, self._previous_universe)):
-            if now != previous:
-                self.dataChanged.emit(index, now)
-
-        self._previous_universe = data
+        if data:
+            self.dataChanged.emit(data)

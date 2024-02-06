@@ -1,29 +1,26 @@
-from PySide6.QtWidgets import QWidget, QLabel, QGridLayout
+from PySide6.QtWidgets import QTableView
 
 from oscartnetdesktop.components.listener.listener import Listener
+from oscartnetdesktop.components.listener.model import Model
 
 
-class ListenerWidget(QWidget):
+class ListenerWidget(QTableView):
+    row_count = 23
+    column_count = 22
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        layout = QGridLayout(self)
-
-        self.labels = list()
-        for row in range(22):
-            self.labels.append(list())
-            for column in range(22):
-                new_label = QLabel('0')
-                self.labels[row].append(new_label)
-                layout.addWidget(new_label, row, column)
-
         self._listener = Listener()
-        self._listener.dataChanged.connect(self._on_data_changed)
+        self._model = Model()
+
+        self._listener.dataChanged.connect(self._model.update_data)
         self._listener.start()
 
-        self.setFixedSize(450, 450)
+        self.setModel(self._model)
 
-    def _on_data_changed(self, channel: int, value:int):
-        row = int(channel / 22)
-        column = channel % 22
-        self.labels[row][column].setText(str(value))
+        self.horizontalHeader().setDefaultSectionSize(20)
+        self.horizontalHeader().setVisible(False)
+        self.verticalHeader().setVisible(False)
+
+        self.resize(800, 200)
