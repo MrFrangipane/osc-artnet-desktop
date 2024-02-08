@@ -35,7 +35,7 @@ class Launcher(QObject):
         self._central_widget = CentralWidget()
         self._main_window.setCentralWidget(self._central_widget)
 
-        self._main_window.resize(950, 600)
+        self._main_window.resize(800, 800)
 
         logging.basicConfig(level=logging.INFO)
 
