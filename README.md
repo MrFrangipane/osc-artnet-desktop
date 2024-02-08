@@ -1,6 +1,6 @@
-# OSC ArtNet Desktop
+# OSC Artnet Desktop
 
 **/!\ BETA VERSION**
 
-Desktop application to manage and test [OSC ArtNet Daemon](https://github.com/MrFrangipane/osc-artnet-daemon)
+Desktop application to manage and test [OSC Artnet Daemon](https://github.com/MrFrangipane/osc-artnet-daemon)
 

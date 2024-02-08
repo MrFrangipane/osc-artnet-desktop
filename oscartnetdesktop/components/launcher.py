@@ -20,27 +20,21 @@ class Launcher(QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        Components().daemon.configure_from_command_line()
         Components().configuration.resources_folder = os.path.join(
             os.path.dirname(os.path.dirname(__file__)),
             "resources"
         )
 
         self._application = QApplication()
+        self._application.aboutToQuit.connect(Components().daemon.stop)
         css.load_onto(self._application)
 
         self._main_window = MainWindow()
-
         dock_logger_to_main_window(self._main_window)
-
         self._central_widget = CentralWidget()
         self._main_window.setCentralWidget(self._central_widget)
-
         self._main_window.resize(800, 800)
-
-        logging.basicConfig(level=logging.INFO)
-
-        #
-        # OSC ArtNet Daemon
 
         # self.css_editor = CSSEditor("Frangitron")
 

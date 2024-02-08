@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QWidget, QGridLayout, QPushButton
 from pyside6helpers.group import make_group
 
 from oscartnetdesktop.components.daemon_starter.widget import DaemonStarterWidget
-from oscartnetdesktop.components.artnet_monitor.widget import ArtNetMonitorWidget
+from oscartnetdesktop.components.artnet_monitor.widget import ArtnetMonitorWidget
 
 
 class CentralWidget(QWidget):
@@ -11,7 +11,7 @@ class CentralWidget(QWidget):
         super().__init__(parent)
 
         self._engine_widget = DaemonStarterWidget()
-        self._artnet_monitor = ArtNetMonitorWidget()
+        self._artnet_monitor = ArtnetMonitorWidget()
 
         layout = QGridLayout(self)
         layout.addWidget(self._engine_widget)

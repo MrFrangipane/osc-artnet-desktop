@@ -5,14 +5,14 @@ from PySide6.QtWidgets import QWidget
 from oscartnetdesktop.components.artnet_monitor.listener import Listener
 
 
-class ArtNetMonitorWidget(QWidget):
+class ArtnetMonitorWidget(QWidget):
     row_count = 23
     column_count = 23
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.setWindowTitle("OSC ArtNet monitor")
+        self.setWindowTitle("OSC Artnet monitor")
 
         self._color_ramp = [QColor(v, v, v) for v in range(0, 256)]
 

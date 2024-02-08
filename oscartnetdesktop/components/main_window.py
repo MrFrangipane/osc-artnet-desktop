@@ -13,7 +13,7 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.setWindowTitle("OSC ArtNet Desktop")
+        self.setWindowTitle("OSC Artnet Desktop")
 
         icon_filepath = os.path.join(Components().configuration.resources_folder, "application-icon.png")
         self.setWindowIcon(QIcon(icon_filepath))

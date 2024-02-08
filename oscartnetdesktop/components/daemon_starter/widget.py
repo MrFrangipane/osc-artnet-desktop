@@ -17,15 +17,15 @@ class DaemonStarterWidget(QWidget):
 
         self._start_restart_button = QPushButton()
         self._start_restart_button.setIcon(icons.play_button())
-        self._start_restart_button.setToolTip("Start engine")
+        self._start_restart_button.setToolTip("Start daemon")
         self._start_restart_button.clicked.connect(self._daemon_starter.start_restart)
 
         self._stop_button = QPushButton()
         self._stop_button.setIcon(icons.stop())
-        self._stop_button.setToolTip("Stop engine")
+        self._stop_button.setToolTip("Stop daemon")
         self._stop_button.clicked.connect(self._daemon_starter.stop)
 
-        group = make_group("Engine", orientation=Qt.Orientation.Horizontal, widgets=[
+        group = make_group("Daemon", orientation=Qt.Orientation.Horizontal, widgets=[
             self._start_restart_button,
             self._stop_button
         ])
@@ -36,7 +36,7 @@ class DaemonStarterWidget(QWidget):
     def _status_changed(self, is_playing: bool):
         if is_playing:
             self._start_restart_button.setIcon(icons.refresh())
-            self._start_restart_button.setToolTip("Restart engine")
+            self._start_restart_button.setToolTip("Restart daemon")
         else:
             self._start_restart_button.setIcon(icons.play_button())
-            self._start_restart_button.setToolTip("Start engine")
+            self._start_restart_button.setToolTip("Start daemon")

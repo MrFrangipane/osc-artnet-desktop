@@ -17,9 +17,6 @@ class Listener(QObject):
         self._timer.start(int(1000 / self._framerate))
 
     def _timeout(self):
-        if Components().daemon_components().fixture_updater is None:
-            return
-
         self.dataChanged.emit(
-            Components().daemon_components().fixture_updater.universe  # FIXME create an API for that
+            Components().daemon.artnet_universe
         )

@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 NAME = 'oscartnetdesktop'
 VERSION = '0.0.0'
-DESCRIPTION = 'Desktop application to manage and test OSCArtNet'
+DESCRIPTION = 'Desktop application to manage and test OSCArtnet'
 AUTHOR = 'Frangitron'
 AUTHOR_EMAIL = 'contact@frangitron.com'
 

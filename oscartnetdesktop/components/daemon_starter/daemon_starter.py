@@ -13,11 +13,13 @@ class DaemonStarter(QObject):
     def start_restart(self):
         if self._is_running:
             self.stop()
+
         self._is_running = True
-        Components().daemon_launcher.exec(blocking=False)
+        Components().daemon.start()
         self.statusChanged.emit(self._is_running)
 
     def stop(self):
-        Components().daemon_launcher.stop()
+        Components().daemon.stop()
+
         self._is_running = False
         self.statusChanged.emit(self._is_running)
