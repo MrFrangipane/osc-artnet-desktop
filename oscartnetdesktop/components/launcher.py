@@ -20,12 +20,15 @@ class Launcher(QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        Components().daemon.configure_from_command_line()
+        #
+        # Configuration
         Components().configuration.resources_folder = os.path.join(
             os.path.dirname(os.path.dirname(__file__)),
             "resources"
         )
 
+        #
+        # Application
         self._application = QApplication()
         self._application.aboutToQuit.connect(Components().daemon.stop)
         css.load_onto(self._application)
@@ -35,6 +38,12 @@ class Launcher(QObject):
         self._central_widget = CentralWidget()
         self._main_window.setCentralWidget(self._central_widget)
         self._main_window.resize(800, 800)
+
+        #
+        # Daemon fixme: LoggerWidget must exist before logging.Basic ?
+        daemon_configuration = Components().daemon.configure_from_command_line()
+        daemon_configuration.artnet_target_node_ip = "192.168.20.7"
+        Components().daemon.configure(daemon_configuration)
 
         # self.css_editor = CSSEditor("Frangitron")
 
