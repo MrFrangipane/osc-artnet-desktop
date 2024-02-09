@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QWidget, QGridLayout, QPushButton
 
 from pyside6helpers import icons
 from pyside6helpers.group import make_group
+from pyside6helpers.hourglass import hourglass_wrapper
 
 from oscartnetdesktop.components.daemon_starter.daemon_starter import DaemonStarter
 
@@ -19,7 +20,7 @@ class DaemonStarterWidget(QWidget):
         self._start_restart_button = QPushButton()
         self._start_restart_button.setIcon(icons.play_button())
         self._start_restart_button.setToolTip("Start daemon")
-        self._start_restart_button.clicked.connect(self._daemon_starter.start_restart)
+        self._start_restart_button.clicked.connect(hourglass_wrapper(self._daemon_starter.start_restart))
 
         self._stop_button = QPushButton()
         self._stop_button.setIcon(icons.stop())
