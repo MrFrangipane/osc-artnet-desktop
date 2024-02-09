@@ -11,6 +11,7 @@ from pyside6helpers.logger import dock_logger_to_main_window
 from oscartnetdesktop.core.components import Components
 from oscartnetdesktop.components.central_widget import CentralWidget
 from oscartnetdesktop.components.main_window import MainWindow
+from oscartnetdesktop.components.argument_parser import parse_args
 
 
 _logger = logging.getLogger(__name__)
@@ -22,6 +23,7 @@ class Launcher(QObject):
 
         #
         # Configuration
+        Components().configuration = parse_args()
         Components().configuration.resources_folder = os.path.join(
             os.path.dirname(os.path.dirname(__file__)),
             "resources"
@@ -48,5 +50,9 @@ class Launcher(QObject):
         # self.css_editor = CSSEditor("Frangitron")
 
     def exec(self) -> int:
-        self._main_window.show()
+        if Components().configuration.maximized:
+            self._main_window.showMaximized()
+        else:
+            self._main_window.show()
+
         return self._application.exec()

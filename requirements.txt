@@ -1,4 +1,3 @@
 oscartnetdaemon @ git+https://github.com/MrFrangipane/osc-artnet-daemon@main
 PySide6
 pyside6-helpers @ git+https://github.com/MrFrangipane/pyside6-helpers@main
-stupidartnet
