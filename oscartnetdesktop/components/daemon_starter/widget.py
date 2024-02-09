@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QWidget, QGridLayout, QPushButton
 
 from pyside6helpers import icons
@@ -8,6 +8,7 @@ from oscartnetdesktop.components.daemon_starter.daemon_starter import DaemonStar
 
 
 class DaemonStarterWidget(QWidget):
+    started = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -37,6 +38,8 @@ class DaemonStarterWidget(QWidget):
         if is_playing:
             self._start_restart_button.setIcon(icons.refresh())
             self._start_restart_button.setToolTip("Restart daemon")
+            # fixme don't nest signals ? (self._daemon_starter.statusChanged)
+            self.started.emit()
         else:
             self._start_restart_button.setIcon(icons.play_button())
             self._start_restart_button.setToolTip("Start daemon")

@@ -15,6 +15,7 @@ class ArtnetMonitorWidget(QWidget):
         self._checkbox_enabled.stateChanged.connect(self._on_checkbox_enabled)
 
         layout = QGridLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self._checkbox_enabled, 0, 0)
         layout.addWidget(self._listener, 1, 0)
         layout.setRowStretch(1, 100)
