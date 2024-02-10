@@ -1,8 +1,6 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QScrollArea
 
-from pyside6helpers.layout import clear
-
 from oscartnetdaemon import OSCArtnetDaemonAPI
 
 

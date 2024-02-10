@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtWidgets import QWidget, QLabel, QGridLayout
+from PySide6.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton
 
 from pyside6helpers.group import make_group
 
@@ -13,10 +13,14 @@ class MIDITempoWidget(QWidget):
 
         self._bpm_label = QLabel()
         self._beat_counter_label = QLabel()
+        self._tap_button = QPushButton("Tap")
+        self._tap_button.setFixedHeight(25)
+        self._tap_button.clicked.connect(Components().daemon.send_tap_tempo)
 
         group = make_group("MIDI Tempo", orientation=Qt.Orientation.Horizontal, widgets=[
             self._bpm_label,
-            self._beat_counter_label
+            self._beat_counter_label,
+            self._tap_button
         ])
         layout = QGridLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
