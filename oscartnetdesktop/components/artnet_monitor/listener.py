@@ -13,7 +13,7 @@ class Listener(QObject):
         super().__init__(parent)
 
         self._palette_fixtures = [QColor("#A1CCD1"), QColor("#F4F2DE")]
-        self._palette_groups = [QColor(255, 0, 0, 128), QColor(255, 0, 255, 128)]
+        self._palette_groups = [QColor(255, 0, 0, 128), QColor(0, 255, 0, 128)]
 
         self._timer = QTimer(self)
         self._timer.timeout.connect(self._timeout)
