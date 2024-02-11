@@ -1,6 +1,6 @@
 import os.path
 
-from PySide6.QtCore import Signal
+from PySide6.QtCore import QSettings, Signal
 from PySide6.QtGui import QPixmap, QIcon
 from PySide6.QtWidgets import QMainWindow, QLabel
 
@@ -24,6 +24,23 @@ class MainWindow(QMainWindow):
         logo_label.setPixmap(logo_pixmap)
         self.statusBar().addPermanentWidget(logo_label)
 
+        self.load_geometry()
+
+    def closeEvent(self, event):
+        self.save_geometry()
+        super().closeEvent(event)
+        event.accept()
+
     def showEvent(self, event):
         self.shown.emit()
         event.accept()
+
+    def save_geometry(self):
+        settings = QSettings("Frangitron", "OSCArtnetDesktop")
+        settings.setValue('geometry', self.saveGeometry())
+        settings.setValue('state', self.saveState())
+
+    def load_geometry(self):
+        settings = QSettings("Frangitron", "OSCArtnetDesktop")
+        self.restoreGeometry(settings.value('geometry'))
+        self.restoreState(settings.value('state'))
