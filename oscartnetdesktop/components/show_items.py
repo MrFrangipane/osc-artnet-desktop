@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QScrollArea
 
-from oscartnetdaemon import OSCArtnetDaemonAPI
+from oscartnetdesktop.core.components import Components
 
 
 class ShowItemsWidget(QWidget):
@@ -32,5 +32,5 @@ class ShowItemsWidget(QWidget):
         self.scroll_content.setText("\n".join([
             f"{show_item.name} "
             f"[{show_item.channel_first + 1}, {show_item.channel_first + show_item.channel_count}]"
-            for show_item in OSCArtnetDaemonAPI().show_items
+            for show_item in Components().daemon.show_items
         ]))
