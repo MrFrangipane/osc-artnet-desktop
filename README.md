@@ -2,5 +2,5 @@
 
 **/!\ BETA VERSION**
 
-Desktop application to manage and test [OSC Artnet Daemon](https://github.com/MrFrangipane/osc-artnet-daemon)
-
+- [OSC Artnet Daemon](https://github.com/MrFrangipane/osc-artnet-daemon)
+- [OSC Artnet Fixtures](https://github.com/MrFrangipane/osc-artnet-fixtures)
