@@ -30,7 +30,7 @@ class ShowItemsWidget(QWidget):
 
     def update_list(self):
         self.scroll_content.setText("\n".join([
-            f"{show_item.name} "
+            f"{show_item.group_place + 1:02d}/{show_item.group_size:02d} - {show_item.name} "
             f"[{show_item.channel_first + 1}, {show_item.channel_first + show_item.channel_count}]"
             for show_item in Components().daemon.show_items
         ]))
