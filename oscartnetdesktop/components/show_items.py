@@ -26,7 +26,7 @@ class ShowItemsWidget(QWidget):
         self.layout.addWidget(self.scroll)
         self.setLayout(self.layout)
 
-        self.setFixedWidth(200)
+        self.setFixedWidth(250)
 
     def update_list(self):
         self.scroll_content.setText("\n".join([
