@@ -14,8 +14,7 @@ class DaemonStarter(QObject):
         if self._is_running:
             self.stop()
 
-        self._is_running = True
-        Components().daemon.start()
+        self._is_running = Components().daemon.start()
         self.statusChanged.emit(self._is_running)
 
     def stop(self):

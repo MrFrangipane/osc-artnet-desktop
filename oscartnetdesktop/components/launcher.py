@@ -1,12 +1,13 @@
 import logging
 import os.path
 
-from PySide6.QtCore import QObject, Qt
-from PySide6.QtWidgets import QApplication, QDockWidget
+from PySide6.QtCore import QObject, QSettings
+from PySide6.QtWidgets import QApplication
 
 # from pyside6helpers.css.editor import CSSEditor
 from pyside6helpers import css
 from pyside6helpers.logger import dock_logger_to_main_window
+from pyside6helpers.logger.string_io_capture import StringIOCapture
 
 from oscartnetdesktop.core.components import Components
 from oscartnetdesktop.components.central_widget import CentralWidget
@@ -22,6 +23,11 @@ class Launcher(QObject):
         super().__init__(parent)
 
         #
+        # Hacky logging
+        self._log_stream = StringIOCapture()
+        logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler(self._log_stream)])
+
+        #
         # Configuration
         Components().configuration = parse_args()
         Components().configuration.resources_folder = os.path.join(
@@ -33,18 +39,20 @@ class Launcher(QObject):
         # Application
         self._application = QApplication()
         self._application.aboutToQuit.connect(Components().daemon.stop)
+        self._application.aboutToQuit.connect(self.save_last_project_filepath)
         css.load_onto(self._application)
 
-        self._main_window = MainWindow()
-        dock_logger_to_main_window(self._main_window)
-        self._central_widget = CentralWidget()
-        self._main_window.setCentralWidget(self._central_widget)
+        #
+        # Project
+        self._load_last_project_filepath()
+        Components().daemon.load_project(Components().configuration.last_project_filepath)
 
         #
-        # Daemon fixme: LoggerWidget must exist before logging.Basic ?
-        daemon_configuration = Components().daemon.configure_from_command_line()
-        daemon_configuration.artnet_target_node_ip = "192.168.20.7"
-        Components().daemon.configure(daemon_configuration)
+        # Main Window
+        self._main_window = MainWindow()
+        dock_logger_to_main_window(self._main_window, self._log_stream)
+        self._central_widget = CentralWidget()
+        self._main_window.setCentralWidget(self._central_widget)
 
         # self.css_editor = CSSEditor("Frangitron")
 
@@ -55,3 +63,17 @@ class Launcher(QObject):
             self._main_window.show()
 
         return self._application.exec()
+
+    def _load_last_project_filepath(self):
+        settings = QSettings("Frangitron", "OSCArtnetDesktop")
+        Components().configuration.last_project_filepath = settings.value('lastProjectFilepath')
+
+    def save_last_project_filepath(self):
+        filepath = Components().configuration.last_project_filepath
+        if filepath is None:
+            filepath = ""
+
+        _logger.info(f"Saving last project filepath: {filepath}")
+
+        settings = QSettings("Frangitron", "OSCArtnetDesktop")
+        settings.setValue('lastProjectFilepath', filepath)
