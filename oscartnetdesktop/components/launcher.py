@@ -13,6 +13,7 @@ from oscartnetdesktop.core.components import Components
 from oscartnetdesktop.components.central_widget import CentralWidget
 from oscartnetdesktop.components.main_window import MainWindow
 from oscartnetdesktop.components.argument_parser import parse_args
+from oscartnetdesktop.components import project_persistence
 
 
 _logger = logging.getLogger(__name__)
@@ -39,13 +40,8 @@ class Launcher(QObject):
         # Application
         self._application = QApplication()
         self._application.aboutToQuit.connect(Components().daemon.stop)
-        self._application.aboutToQuit.connect(self.save_last_project_filepath)
+        self._application.aboutToQuit.connect(project_persistence.on_quit)
         css.load_onto(self._application)
-
-        #
-        # Project
-        self._load_last_project_filepath()
-        Components().daemon.load_project(Components().configuration.last_project_filepath)
 
         #
         # Main Window
@@ -53,6 +49,10 @@ class Launcher(QObject):
         dock_logger_to_main_window(self._main_window, self._log_stream)
         self._central_widget = CentralWidget()
         self._main_window.setCentralWidget(self._central_widget)
+
+        #
+        # Project
+        project_persistence.on_startup()
 
         # self.css_editor = CSSEditor("Frangitron")
 
@@ -63,17 +63,3 @@ class Launcher(QObject):
             self._main_window.show()
 
         return self._application.exec()
-
-    def _load_last_project_filepath(self):
-        settings = QSettings("Frangitron", "OSCArtnetDesktop")
-        Components().configuration.last_project_filepath = settings.value('lastProjectFilepath')
-
-    def save_last_project_filepath(self):
-        filepath = Components().configuration.last_project_filepath
-        if filepath is None:
-            filepath = ""
-
-        _logger.info(f"Saving last project filepath: {filepath}")
-
-        settings = QSettings("Frangitron", "OSCArtnetDesktop")
-        settings.setValue('lastProjectFilepath', filepath)

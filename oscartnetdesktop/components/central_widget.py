@@ -6,6 +6,7 @@ from pyside6helpers.group import make_group
 from oscartnetdesktop.components.daemon_starter.widget import DaemonStarterWidget
 from oscartnetdesktop.components.artnet_monitor.widget import ArtnetMonitorWidget
 from oscartnetdesktop.components.midi_tempo import MIDITempoWidget
+from oscartnetdesktop.core.components import Components
 
 
 class CentralWidget(QWidget):
@@ -16,6 +17,8 @@ class CentralWidget(QWidget):
         self._midi_tempo_widget = MIDITempoWidget()
         self._artnet_monitor_widget = ArtnetMonitorWidget()
         self._show_items_widget = ShowItemsWidget()
+
+        Components().show_items_widget = self._show_items_widget
 
         self._daemon_widget.started.connect(self._show_items_widget.update_list)
 
