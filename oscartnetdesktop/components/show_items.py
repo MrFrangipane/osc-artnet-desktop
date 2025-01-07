@@ -1,36 +1,27 @@
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QScrollArea
+from PySide6.QtCore import Signal
+from PySide6.QtWidgets import QListWidget
+
+from oscartnetdaemon.core.show.item import ShowItem
 
 from oscartnetdesktop.core.components import Components
 
 
-class ShowItemsWidget(QWidget):
+class ShowItemsWidget(QListWidget):
+
+    ShowItemSelected = Signal(ShowItem)
+
     def __init__(self, parent=None):
         super().__init__(parent)
-
-        self.layout = QVBoxLayout()
-        self.layout.setContentsMargins(0, 0, 0, 0)
-
-        self.scroll = QScrollArea()
-        self.scroll.setWidgetResizable(True)  # Added this line
-        self.scroll_content = QLabel()
-        self.scroll_content.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        self.scroll_layout = QVBoxLayout()
-        self.scroll_layout.setContentsMargins(0, 0, 0, 0)
-        self.scroll_layout.setSpacing(0)
-
-        self.scroll_content.setLayout(self.scroll_layout)
-        self.scroll.setWidget(self.scroll_content)
-
-        self.layout.addWidget(self.scroll)
-        self.setLayout(self.layout)
-
         self.setFixedWidth(250)
+        self.currentRowChanged.connect(self._selection_changed)
 
     def update_list(self):
-        self.scroll_content.setText("\n".join([
-            f"{show_item.group_place + 1:02d}/{show_item.group_size:02d} - {show_item.name} "
-            f"[{show_item.channel_first + 1}, {show_item.channel_first + show_item.channel_count}]"
-            for show_item in Components().daemon.show_items
-        ]))
+        self.clear()
+        for show_item in Components().daemon.show_items:
+            self.addItem(
+                f"{show_item.group_place + 1:02d}/{show_item.group_size:02d} - {show_item.name} "
+                f"[{show_item.channel_first + 1}, {show_item.channel_first + show_item.channel_count}]"
+            )
+
+    def _selection_changed(self, row):
+        self.ShowItemSelected.emit(Components().daemon.show_items[row])
