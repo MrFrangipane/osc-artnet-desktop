@@ -1,6 +1,6 @@
 from dataclasses import fields
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 from PySide6.QtWidgets import QWidget, QTableView, QGridLayout, QSpinBox, QLabel, QComboBox
 
@@ -9,6 +9,7 @@ from oscartnetdaemon.core.show.item import ShowItem
 
 
 class PatternEditorWidget(QWidget):
+    WheelChanged = Signal(float)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -52,9 +53,10 @@ class PatternEditorWidget(QWidget):
 
         self._show_item: ShowItem = None
         self._field_names: list[str] = list()
-        self._is_updating = False
+        self._dont_save = False
 
         PatternStoreAPI.set_wheel_callback(self.wheel_changed)
+        self.WheelChanged.connect(self._wheel_changed)  # FIXME use a QObject on the other side ?
 
         self.init_data()
 
@@ -63,7 +65,7 @@ class PatternEditorWidget(QWidget):
         self.update_pattern()
 
     def update_pattern(self):
-        self._is_updating = True
+        self._dont_save = True
 
         self.init_data()
 
@@ -71,9 +73,8 @@ class PatternEditorWidget(QWidget):
         self.model.setVerticalHeaderLabels([name.replace('_', ' ').capitalize() for name in self._field_names])
 
         steps = PatternStoreAPI.get_steps(
-            fixture_type=self._show_item.name,
-            pattern_index=self.combo_pattern.currentIndex(),
-            group_place=self._show_item.group_place
+            show_item=self._show_item,
+            pattern_index=self.combo_pattern.currentIndex()
         )
 
         self.spin_step_count.setValue(len(steps))
@@ -84,27 +85,21 @@ class PatternEditorWidget(QWidget):
                 self.model.setItem(row, 0, QStandardItem("X"))
                 self.model.setItem(row, step_index + 1, QStandardItem(str(value)))
 
-        self._is_updating = False
+        self._dont_save = False
 
     def init_data(self):
         self.model.clear()
         self.model.setHorizontalHeaderLabels(["Active"])
         self.spin_step_count.setValue(0)
 
-    def _set_length(self, length):
+    def save_pattern(self):
+        if self._dont_save:
+            return
+
         if self._show_item is None:
             return
 
-        self.model.setColumnCount(length + 1)
-        self.model.setHorizontalHeaderLabels(["Active"] + [str(i + 1) for i in range(length)])
-        self.save_pattern()
-
-    def save_pattern(self):
-        if self._is_updating:
-            return
-
         steps = dict()
-
         for col in range(self.spin_step_count.value()):
             step = {}
             for row in range(self.model.rowCount()):
@@ -115,24 +110,48 @@ class PatternEditorWidget(QWidget):
             steps[col] = step
 
         PatternStoreAPI.set_steps(
-            fixture_type=self._show_item.name,
+            show_item=self._show_item,
             pattern_index=self.combo_pattern.currentIndex(),
-            group_place=self._show_item.group_place,
             steps=steps
         )
 
     def wheel_changed(self, value):
+        self.WheelChanged.emit(value)
+
+    def _wheel_changed(self, value):
         value = int(value * 255)
         selected_indexes = self.table.selectionModel().selectedIndexes()
+
+        self._dont_save = True
         for index in selected_indexes:
             self.model.setData(index, str(value), Qt.EditRole)
 
+        self._dont_save = False
+        self.save_pattern()
+
     def _selection_changed(self, selected, deselected):
         selected_indexes = selected.indexes()
-        if len(selected_indexes) == 1:
-            if selected_indexes[0].column() == 0:
-                return
+        if len(selected_indexes) != 1:
+            return
 
-            value = selected_indexes[0].data()
-            if value is not None:
-                PatternStoreAPI.set_wheel_value(float(int(value)) / 255.0)
+        index = selected_indexes[0]
+        if index.column() == 0:
+            return
+
+        PatternStoreAPI.set_current_step(
+            show_item=self._show_item,
+            pattern_index=self.combo_pattern.currentIndex(),
+            step_index=index.column() - 1
+        )
+
+        value = index.data()
+        if value is not None:
+            PatternStoreAPI.set_wheel_value(float(int(value)) / 255.0)
+
+    def _set_length(self, length):
+        if self._show_item is None:
+            return
+
+        self.model.setColumnCount(length + 1)
+        self.model.setHorizontalHeaderLabels(["Active"] + [str(i + 1) for i in range(length)])
+        self.save_pattern()
