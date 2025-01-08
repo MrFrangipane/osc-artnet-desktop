@@ -15,7 +15,7 @@ class PatternEditorWidget(QWidget):
         super().__init__(parent)
 
         self.model = QStandardItemModel()
-        self.model.itemChanged.connect(self.save_pattern)
+        self.model.itemChanged.connect(self._item_changed)
 
         self.table = QTableView()
         self.table.setModel(self.model)
@@ -158,8 +158,18 @@ class PatternEditorWidget(QWidget):
 
     # fixme: a bit messy, unify PatternStoreAPI and fixtureUpdater  apis ?
     def _update_fixture(self):
+        if self._show_item is None:
+            return
+
         PatternStoreAPI.set_current_step(
             show_item_info=self._show_item.info,
             pattern_index=self.combo_pattern.currentIndex(),
             step_index=self._current_step
         )
+
+    def _item_changed(self, item):
+        if item.column() == 0:
+            return
+
+        PatternStoreAPI.set_wheel_value(float(int(item.data(Qt.DisplayRole))) / 255.0)
+        self.save_pattern()
