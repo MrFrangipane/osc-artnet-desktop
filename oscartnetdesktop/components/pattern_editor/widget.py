@@ -54,7 +54,7 @@ class PatternEditorWidget(QWidget):
         self._show_item: ShowItem = None
         self._field_names: list[str] = list()
         self._dont_save = False
-        self._current_step = 0
+        self._current_step: int = None
 
         PatternStoreAPI.set_wheel_callback(self.wheel_changed)
         self.WheelChanged.connect(self._wheel_changed)  # FIXME use a QObject on the other side ?
@@ -92,6 +92,7 @@ class PatternEditorWidget(QWidget):
         self.model.clear()
         self.model.setHorizontalHeaderLabels(["Active"])
         self.spin_step_count.setValue(0)
+        self._current_step = None
 
     def save_pattern(self):
         if self._dont_save:
@@ -122,6 +123,8 @@ class PatternEditorWidget(QWidget):
     def _wheel_changed(self, value):
         value = int(value * 255)
         selected_indexes = self.table.selectionModel().selectedIndexes()
+        if len(selected_indexes) == 0:
+            return
 
         self._dont_save = True
         for index in selected_indexes:
@@ -144,9 +147,7 @@ class PatternEditorWidget(QWidget):
         self._current_step = index.column() - 1
         self._update_fixture()
 
-        value = index.data()
-        if value is not None:
-            PatternStoreAPI.set_wheel_value(float(int(value)) / 255.0)
+        PatternStoreAPI.set_wheel_value(float(self._value(index)) / 255.0)
 
     def _set_length(self, length):
         if self._show_item is None:
@@ -158,7 +159,7 @@ class PatternEditorWidget(QWidget):
 
     # fixme: a bit messy, unify PatternStoreAPI and fixtureUpdater  apis ?
     def _update_fixture(self):
-        if self._show_item is None:
+        if self._show_item is None or self._current_step is None:
             return
 
         PatternStoreAPI.set_current_step(
@@ -171,5 +172,22 @@ class PatternEditorWidget(QWidget):
         if item.column() == 0:
             return
 
-        PatternStoreAPI.set_wheel_value(float(int(item.data(Qt.DisplayRole))) / 255.0)
+        PatternStoreAPI.set_wheel_value(float(self._value(item)) / 255.0)
         self.save_pattern()
+
+    @staticmethod
+    def _value(item):
+        if item is None:
+            return 0
+
+        data = item.data(Qt.DisplayRole)
+        if data is None:
+            return 0
+
+        try:
+            return int(data)
+        except ValueError:
+            return 0
+
+        else:
+            return min(max(0, int(data)), 255)
