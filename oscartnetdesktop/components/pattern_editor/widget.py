@@ -57,22 +57,22 @@ class PatternEditorWidget(QWidget):
         self.update_pattern()
 
     def update_pattern(self):
-        self.init_data()
-
         self._is_updating = True
+
+        self.init_data()
 
         self._field_names = [field.name for field in fields(self._show_item.fixture.Mapping)]
         self.model.setVerticalHeaderLabels([name.replace('_', ' ').capitalize() for name in self._field_names])
 
-        pattern = PatternStoreAPI.get_pattern(
+        steps = PatternStoreAPI.get_steps(
             fixture_type=self._show_item.name,
-            group_place=self._show_item.group_place,
-            pattern_index=self.combo_pattern.currentIndex()
+            pattern_index=self.combo_pattern.currentIndex(),
+            group_place=self._show_item.group_place
         )
 
-        self.spin_step_count.setValue(len(pattern))
+        self.spin_step_count.setValue(len(steps))
 
-        for step_index, step in enumerate(pattern):
+        for step_index, step in steps.items():
             for name, value in step.items():
                 row = self._field_names.index(name)
                 self.model.setItem(row, 0, QStandardItem("X"))
@@ -86,6 +86,9 @@ class PatternEditorWidget(QWidget):
         self.spin_step_count.setValue(0)
 
     def _set_length(self, length):
+        if self._show_item is None:
+            return
+
         self.model.setColumnCount(length + 1)
         self.model.setHorizontalHeaderLabels(["Active"] + [str(i + 1) for i in range(length)])
         self.save_pattern()
@@ -94,7 +97,7 @@ class PatternEditorWidget(QWidget):
         if self._is_updating:
             return
 
-        pattern = []
+        steps = dict()
 
         for col in range(self.spin_step_count.value()):
             step = {}
@@ -103,11 +106,11 @@ class PatternEditorWidget(QWidget):
                 if item is not None:
                     if item.text():
                         step[self._field_names[row]] = int(item.text())
-            pattern.append(step)
+            steps[col] = step
 
-        PatternStoreAPI.set_pattern(
+        PatternStoreAPI.set_steps(
             fixture_type=self._show_item.name,
-            group_place=self._show_item.group_place,
             pattern_index=self.combo_pattern.currentIndex(),
-            pattern=pattern
+            group_place=self._show_item.group_place,
+            steps=steps
         )
