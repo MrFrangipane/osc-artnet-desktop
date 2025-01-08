@@ -25,6 +25,8 @@ class PatternEditorWidget(QWidget):
         self.table.setModel(self.model)
         self.table.setAlternatingRowColors(True)
         self.table.setItemDelegateForColumn(0, BooleanDelegate())
+        self.table.beginPaste.connect(lambda: setattr(self, '_dont_propagate_edition', True))
+        self.table.endPaste.connect(lambda: setattr(self, '_dont_propagate_edition', False))
 
         selection_model = self.table.selectionModel()
         selection_model.selectionChanged.connect(self._selection_changed)
@@ -59,6 +61,7 @@ class PatternEditorWidget(QWidget):
         self._show_item: ShowItem = None
         self._field_names: list[str] = list()
         self._dont_save = False
+        self._dont_propagate_edition = False
         self._current_step: int = None
 
         PatternStoreAPI.set_wheel_callback(self.wheel_changed)
@@ -174,7 +177,7 @@ class PatternEditorWidget(QWidget):
         )
 
     def _item_changed(self, item):
-        if item.column() == 0:
+        if item.column() == 0 or self._dont_propagate_edition:
             return
 
         self._dont_save = True
