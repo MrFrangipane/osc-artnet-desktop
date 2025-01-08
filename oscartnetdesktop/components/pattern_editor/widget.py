@@ -177,6 +177,11 @@ class PatternEditorWidget(QWidget):
         if item.column() == 0:
             return
 
+        self._dont_save = True
+        for index in self.table.selectionModel().selectedIndexes():
+            self.model.setData(index, str(self._value(item)), Qt.EditRole)
+        self._dont_save = False
+
         PatternStoreAPI.set_wheel_value(float(self._value(item)) / 255.0)
         self.save_pattern()
 
