@@ -1,5 +1,6 @@
 from dataclasses import fields
 
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 from PySide6.QtWidgets import QWidget, QTableView, QGridLayout, QSpinBox, QLabel, QComboBox
 
@@ -18,6 +19,9 @@ class PatternEditorWidget(QWidget):
         self.table = QTableView()
         self.table.setModel(self.model)
         self.table.setAlternatingRowColors(True)
+
+        selection_model = self.table.selectionModel()
+        selection_model.selectionChanged.connect(self._selection_changed)
 
         self.spin_step_count = QSpinBox()
         self.spin_step_count.setRange(0, 32)
@@ -49,6 +53,8 @@ class PatternEditorWidget(QWidget):
         self._show_item: ShowItem = None
         self._field_names: list[str] = list()
         self._is_updating = False
+
+        PatternStoreAPI.set_wheel_callback(self.wheel_changed)
 
         self.init_data()
 
@@ -114,3 +120,19 @@ class PatternEditorWidget(QWidget):
             group_place=self._show_item.group_place,
             steps=steps
         )
+
+    def wheel_changed(self, value):
+        value = int(value * 255)
+        selected_indexes = self.table.selectionModel().selectedIndexes()
+        for index in selected_indexes:
+            self.model.setData(index, str(value), Qt.EditRole)
+
+    def _selection_changed(self, selected, deselected):
+        selected_indexes = selected.indexes()
+        if len(selected_indexes) == 1:
+            if selected_indexes[0].column() == 0:
+                return
+
+            value = selected_indexes[0].data()
+            if value is not None:
+                PatternStoreAPI.set_wheel_value(float(int(value)) / 255.0)
