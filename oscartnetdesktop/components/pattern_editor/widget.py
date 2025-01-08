@@ -2,10 +2,14 @@ from dataclasses import fields
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QStandardItemModel, QStandardItem
-from PySide6.QtWidgets import QWidget, QTableView, QGridLayout, QSpinBox, QLabel, QComboBox
+from PySide6.QtWidgets import QWidget, QGridLayout, QSpinBox, QLabel, QComboBox
+
+from pyside6helpers.item_delegates.boolean import BooleanDelegate
+from pyside6helpers.table_view import TableView
 
 from oscartnetdaemon.components.pattern_store.api import PatternStoreAPI
 from oscartnetdaemon.core.show.item import ShowItem
+
 
 
 class PatternEditorWidget(QWidget):
@@ -17,9 +21,10 @@ class PatternEditorWidget(QWidget):
         self.model = QStandardItemModel()
         self.model.itemChanged.connect(self._item_changed)
 
-        self.table = QTableView()
+        self.table = TableView()
         self.table.setModel(self.model)
         self.table.setAlternatingRowColors(True)
+        self.table.setItemDelegateForColumn(0, BooleanDelegate())
 
         selection_model = self.table.selectionModel()
         selection_model.selectionChanged.connect(self._selection_changed)
