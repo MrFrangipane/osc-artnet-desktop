@@ -19,8 +19,8 @@ class ShowItemsWidget(QListWidget):
         self.clear()
         for show_item in Components().daemon.show_items:
             self.addItem(
-                f"{show_item.group.place + 1:02d}/{show_item.group.size:02d} - {show_item.name} "
-                f"[{show_item.channel.first + 1}, {show_item.channel.first + show_item.channel.count}]"
+                f"{show_item.group_info.place + 1:02d}/{show_item.group_info.size:02d} - {show_item.name} "
+                f"[{show_item.channel_info.first + 1}, {show_item.channel_info.first + show_item.channel_info.count}]"
             )
 
     def _selection_changed(self, row):
