@@ -54,6 +54,7 @@ class PatternEditorWidget(QWidget):
         self._show_item: ShowItem = None
         self._field_names: list[str] = list()
         self._dont_save = False
+        self._current_step = 0
 
         PatternStoreAPI.set_wheel_callback(self.wheel_changed)
         self.WheelChanged.connect(self._wheel_changed)  # FIXME use a QObject on the other side ?
@@ -127,6 +128,8 @@ class PatternEditorWidget(QWidget):
             self.model.setData(index, str(value), Qt.EditRole)
 
         self._dont_save = False
+
+        self._update_fixture()
         self.save_pattern()
 
     def _selection_changed(self, selected, deselected):
@@ -138,11 +141,8 @@ class PatternEditorWidget(QWidget):
         if index.column() == 0:
             return
 
-        PatternStoreAPI.set_current_step(
-            show_item=self._show_item,
-            pattern_index=self.combo_pattern.currentIndex(),
-            step_index=index.column() - 1
-        )
+        self._current_step = index.column() - 1
+        self._update_fixture()
 
         value = index.data()
         if value is not None:
@@ -155,3 +155,11 @@ class PatternEditorWidget(QWidget):
         self.model.setColumnCount(length + 1)
         self.model.setHorizontalHeaderLabels(["Active"] + [str(i + 1) for i in range(length)])
         self.save_pattern()
+
+    # fixme: a bit messy, unify PatternStoreAPI and fixtureUpdater  apis ?
+    def _update_fixture(self):
+        PatternStoreAPI.set_current_step(
+            show_item=self._show_item,
+            pattern_index=self.combo_pattern.currentIndex(),
+            step_index=self._current_step
+        )
