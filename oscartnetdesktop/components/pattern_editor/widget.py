@@ -74,7 +74,7 @@ class PatternEditorWidget(QWidget):
         self.model.setVerticalHeaderLabels([name.replace('_', ' ').capitalize() for name in self._field_names])
 
         steps = PatternStoreAPI.get_steps(
-            show_item=self._show_item,
+            show_item_info=self._show_item.info,
             pattern_index=self.combo_pattern.currentIndex()
         )
 
@@ -111,7 +111,7 @@ class PatternEditorWidget(QWidget):
             steps[col] = step
 
         PatternStoreAPI.set_steps(
-            show_item=self._show_item,
+            show_item_info=self._show_item.info,
             pattern_index=self.combo_pattern.currentIndex(),
             steps=steps
         )
@@ -159,7 +159,7 @@ class PatternEditorWidget(QWidget):
     # fixme: a bit messy, unify PatternStoreAPI and fixtureUpdater  apis ?
     def _update_fixture(self):
         PatternStoreAPI.set_current_step(
-            show_item=self._show_item,
+            show_item_info=self._show_item.info,
             pattern_index=self.combo_pattern.currentIndex(),
             step_index=self._current_step
         )

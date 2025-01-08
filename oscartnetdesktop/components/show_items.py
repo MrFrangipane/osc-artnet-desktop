@@ -16,11 +16,12 @@ class ShowItemsWidget(QListWidget):
         self.currentRowChanged.connect(self._selection_changed)
 
     def update_list(self):
+        # TODO check if ShowItemInfo would be enough
         self.clear()
         for show_item in Components().daemon.show_items:
             self.addItem(
-                f"{show_item.group_info.place + 1:02d}/{show_item.group_info.size:02d} - {show_item.name} "
-                f"[{show_item.channel_info.first + 1}, {show_item.channel_info.first + show_item.channel_info.count}]"
+                f"{show_item.info.group_info.place + 1:02d}/{show_item.info.group_info.size:02d} - {show_item.info.name} "
+                f"[{show_item.info.channel_info.first + 1}, {show_item.info.channel_info.first + show_item.info.channel_info.count}]"
             )
 
     def _selection_changed(self, row):
