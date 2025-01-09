@@ -4,6 +4,8 @@ from PySide6.QtCore import QSettings, Signal
 from PySide6.QtGui import QPixmap, QIcon
 from PySide6.QtWidgets import QMainWindow, QLabel
 
+from pyside6helpers import icons
+
 from oscartnetdesktop.core.components import Components
 from oscartnetdesktop.components.project_persistence import make_menu_actions
 
