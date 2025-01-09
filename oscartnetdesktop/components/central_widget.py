@@ -2,8 +2,6 @@ from PySide6.QtWidgets import QWidget, QGridLayout
 
 from pyside6helpers.group import make_group
 
-from oscartnetdaemon.core.show.item import ShowItem
-
 from oscartnetdesktop.components.artnet_monitor.widget import ArtnetMonitorWidget
 from oscartnetdesktop.components.daemon_starter.widget import DaemonStarterWidget
 from oscartnetdesktop.components.midi_tempo import MIDITempoWidget

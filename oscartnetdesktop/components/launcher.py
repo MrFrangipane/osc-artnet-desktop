@@ -46,7 +46,8 @@ class Launcher(QObject):
         #
         # Main Window
         self._main_window = MainWindow()
-        dock_logger_to_main_window(self._main_window, self._log_stream)
+        Components().logger_dock_widget = dock_logger_to_main_window(self._main_window, self._log_stream)
+
         self._central_widget = CentralWidget()
         self._main_window.setCentralWidget(self._central_widget)
 

@@ -20,7 +20,6 @@ class ShowItemsWidget(QListWidget):
         self.setItemDelegate(self._delegate)
 
     def update_list(self):
-        # TODO check if ShowItemInfo would be enough
         self.clear()
         for show_item in Components().daemon.show_items:
             item = QListWidgetItem()

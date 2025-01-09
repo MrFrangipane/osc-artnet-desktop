@@ -17,7 +17,7 @@ def make_menu_actions() -> list[QAction]:
     save = QAction("&Save project")
     save.triggered.connect(_save)
 
-    save_as = QAction("&Save project as...")
+    save_as = QAction("Save &project as...")
     save_as.triggered.connect(_save_as)
 
     return [new, load, save, save_as]

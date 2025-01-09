@@ -1,7 +1,7 @@
 import os.path
 
 from PySide6.QtCore import QSettings, Signal
-from PySide6.QtGui import QPixmap, QIcon
+from PySide6.QtGui import QPixmap, QIcon, QAction
 from PySide6.QtWidgets import QMainWindow, QLabel
 
 from pyside6helpers import icons
@@ -27,6 +27,9 @@ class MainWindow(QMainWindow):
         logo_label.setPixmap(logo_pixmap)
         self.statusBar().addPermanentWidget(logo_label)
 
+        self._toggle_log_visibility_action = QAction("Hide &logs")
+        self._toggle_log_visibility_action.triggered.connect(self._toggle_log_visibility)
+
         self._file_menu_actions = list()
         self.make_file_menu()
 
@@ -36,12 +39,23 @@ class MainWindow(QMainWindow):
         menu_bar = self.menuBar()
         menu_file = menu_bar.addMenu("&File")
 
+        menu_file.addAction(self._toggle_log_visibility_action)
+        menu_file.addSeparator()
+
         self._file_menu_actions += make_menu_actions()
         for action in self._file_menu_actions:
             menu_file.addAction(action)
 
         menu_file.addSeparator()
         menu_file.addAction("&Exit", self.close)
+
+    def _toggle_log_visibility(self):
+        if Components().logger_dock_widget.isVisible():
+            Components().logger_dock_widget.hide()
+            self._toggle_log_visibility_action.setText("Show &logs")
+        else:
+            Components().logger_dock_widget.show()
+            self._toggle_log_visibility_action.setText("Hide &logs")
 
     def closeEvent(self, event):
         self.save_geometry()
