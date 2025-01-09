@@ -61,7 +61,7 @@ class ShowItemDelegate(QStyledItemDelegate):
         painter.drawText(
             QRect(rect.x() + 10, rect.y(), rect.width() - 10, rect.height()),
             Qt.AlignVCenter | Qt.AlignCenter,
-            f"[{show_item_info.channel_info.first} {show_item_info.channel_info.last}]",
+            f"[{show_item_info.channel_info.first + 1} {show_item_info.channel_info.last}]",
         )
 
         painter.restore()
