@@ -293,17 +293,19 @@ class PatternEditorWidget(QWidget):
     def _shift_left(self):
         if self._show_item is None:
             return
-        PatternStoreAPI.shift_left(
+        PatternStoreAPI.shift_steps(
             show_item_info=self._show_item.info,
             pattern_index=self.spin_pattern.value() - 1,
+            offset=1
         )
         self.update_pattern()
 
     def _shift_right(self):
         if self._show_item is None:
             return
-        PatternStoreAPI.shift_right(
+        PatternStoreAPI.shift_steps(
             show_item_info=self._show_item.info,
             pattern_index=self.spin_pattern.value() - 1,
+            offset=-1
         )
         self.update_pattern()
