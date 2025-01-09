@@ -37,7 +37,6 @@ class CentralWidget(QWidget):
         layout.addWidget(make_group("Pattern Editor", [self._pattern_editor_widget]), 1, 3)
         layout.addWidget(make_group("ArNet Monitor", [self._artnet_monitor_widget]), 2, 0, 1, 4)
         layout.setRowStretch(1, 100)
-        layout.setRowStretch(2, 50)
         layout.setColumnStretch(3, 100)
 
         self._show_items_widget.update_list()

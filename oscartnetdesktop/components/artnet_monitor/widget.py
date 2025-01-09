@@ -22,8 +22,13 @@ class ArtnetMonitorWidget(QWidget):
         layout.addWidget(self._listener, 1, 0)
         layout.setRowStretch(1, 100)
 
+        self.setFixedHeight(200)
+
     def _on_checkbox_enabled(self, value):
         self._listener.setEnabled(self._checkbox_enabled.isChecked())
+        self.setFixedHeight(
+            200 if self._checkbox_enabled.isChecked() else 25
+        )
 
     def highlight(self, info: ShowItemInfo):
         self._listener.set_highlight(list(range(info.channel_info.first, info.channel_info.last + 1)))
