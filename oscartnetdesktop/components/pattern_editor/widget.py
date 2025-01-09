@@ -27,6 +27,7 @@ class PatternEditorWidget(QWidget):
         self.table.setItemDelegateForColumn(0, BooleanDelegate())
         self.table.beginPaste.connect(lambda: setattr(self, '_dont_propagate_edition', True))
         self.table.endPaste.connect(lambda: setattr(self, '_dont_propagate_edition', False))
+        self.table.endPaste.connect(self.save_pattern)
 
         selection_model = self.table.selectionModel()
         selection_model.selectionChanged.connect(self._selection_changed)
