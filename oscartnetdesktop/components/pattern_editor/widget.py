@@ -2,7 +2,7 @@ from dataclasses import fields
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QStandardItemModel, QStandardItem
-from PySide6.QtWidgets import QWidget, QGridLayout, QSpinBox, QLabel, QComboBox
+from PySide6.QtWidgets import QWidget, QGridLayout, QSpinBox, QLabel, QLineEdit
 
 from pyside6helpers.item_delegates.boolean import BooleanDelegate
 from pyside6helpers.table_view import TableView
@@ -32,27 +32,33 @@ class PatternEditorWidget(QWidget):
         selection_model = self.table.selectionModel()
         selection_model.selectionChanged.connect(self._selection_changed)
 
+        self.spin_pattern = QSpinBox()
+        self.spin_pattern.setRange(1, 11)
+        self.spin_pattern.valueChanged.connect(self.update_pattern)
+
+        self.line_pattern_name = QLineEdit()
+        self.line_pattern_name.setMaxLength(10)
+        self.line_pattern_name.textChanged.connect(self._name_changed)
+
         self.spin_step_count = QSpinBox()
         self.spin_step_count.setRange(0, 32)
         self.spin_step_count.valueChanged.connect(self._set_length)
-
-        self.combo_pattern = QComboBox()
-        self.combo_pattern.addItems(["A", "B", "C", "D", "E"])
-        self.combo_pattern.setMinimumWidth(60)
-        self.combo_pattern.currentIndexChanged.connect(self.update_pattern)
 
         layout = QGridLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
         layout.addWidget(QLabel("Pattern"), 0, 0)
-        layout.addWidget(self.combo_pattern, 0, 1)
+        layout.addWidget(self.spin_pattern, 0, 1)
 
-        layout.addWidget(QLabel("Step count"), 0, 2)
-        layout.addWidget(self.spin_step_count, 0, 3)
+        layout.addWidget(QLabel("Name"), 0, 2)
+        layout.addWidget(self.line_pattern_name, 0, 3)
 
-        layout.addWidget(QWidget(), 0, 4)
+        layout.addWidget(QLabel("Step count"), 0, 4)
+        layout.addWidget(self.spin_step_count, 0, 5)
 
-        layout.addWidget(self.table, 1, 0, 1, 5)
+        layout.addWidget(QWidget(), 0, 6)
+
+        layout.addWidget(self.table, 1, 0, 1, 7)
 
         layout.setRowStretch(1, 100)
         layout.setColumnStretch(layout.columnCount() - 1, 100)
@@ -74,7 +80,14 @@ class PatternEditorWidget(QWidget):
         self._show_item = item
         self.update_pattern()
 
+    def update_pattern_name(self):
+        pattern_index = self.spin_pattern.value() - 1
+        self.line_pattern_name.setText(
+            PatternStoreAPI.pattern_names()[pattern_index]
+        )
+
     def update_pattern(self):
+        self.update_pattern_name()
         if self._show_item is None:
             return
 
@@ -86,9 +99,8 @@ class PatternEditorWidget(QWidget):
 
         steps = PatternStoreAPI.get_steps(
             show_item_info=self._show_item.info,
-            pattern_index=self.combo_pattern.currentIndex()
+            pattern_index=self.spin_pattern.value() - 1
         )
-
         self.spin_step_count.setValue(len(steps))
 
         for step_index, step in steps.items():
@@ -104,6 +116,7 @@ class PatternEditorWidget(QWidget):
         self.model.setHorizontalHeaderLabels(["Active"])
         self.spin_step_count.setValue(0)
         self._current_step = None
+        self.update_pattern_name()
 
     def save_pattern(self):
         if self._dont_save:
@@ -124,7 +137,7 @@ class PatternEditorWidget(QWidget):
 
         PatternStoreAPI.set_steps(
             show_item_info=self._show_item.info,
-            pattern_index=self.combo_pattern.currentIndex(),
+            pattern_index=self.spin_pattern.value() - 1,
             steps=steps
         )
 
@@ -175,7 +188,7 @@ class PatternEditorWidget(QWidget):
 
         PatternStoreAPI.set_current_step(
             show_item_info=self._show_item.info,
-            pattern_index=self.combo_pattern.currentIndex(),
+            pattern_index=self.spin_pattern.value() - 1,
             step_index=self._current_step
         )
 
@@ -201,9 +214,12 @@ class PatternEditorWidget(QWidget):
             return 0
 
         try:
-            return int(data)
+            return min(max(0, int(data)), 255)
         except ValueError:
             return 0
 
-        else:
-            return min(max(0, int(data)), 255)
+    def _name_changed(self, text):
+        PatternStoreAPI.set_pattern_name(
+            pattern_index=self.spin_pattern.value() - 1,
+            name=text
+        )
