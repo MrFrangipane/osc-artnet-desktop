@@ -74,8 +74,10 @@ class PatternEditorWidget(QWidget):
         self.update_pattern()
 
     def update_pattern(self):
-        self._dont_save = True
+        if self._show_item is None:
+            return
 
+        self._dont_save = True
         self.init_data()
 
         self._field_names = [field.name for field in fields(self._show_item.fixture.Mapping)]
