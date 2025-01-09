@@ -1,5 +1,7 @@
 from PySide6.QtWidgets import QWidget, QCheckBox, QGridLayout
 
+from oscartnetdaemon.core.show.item_info import ShowItemInfo
+
 from oscartnetdesktop.components.artnet_monitor.listener_wiget import ListenerWidget
 
 
@@ -22,3 +24,6 @@ class ArtnetMonitorWidget(QWidget):
 
     def _on_checkbox_enabled(self, value):
         self._listener.setEnabled(self._checkbox_enabled.isChecked())
+
+    def highlight(self, info: ShowItemInfo):
+        self._listener.set_highlight(list(range(info.channel_info.first, info.channel_info.last + 1)))

@@ -18,6 +18,12 @@ class ListenerWidget(QWidget):
         self._listener.dataChanged.connect(self._new_data)
         self._listener.start()
 
+        self._highlighted_channels: list[int] = list()
+
+    def set_highlight(self, channels: list[int]):
+        self._highlighted_channels = channels
+        self.update()
+
     def paintEvent(self, event):
         if not self.isEnabled() or not self._channels_info:
             return
@@ -41,6 +47,10 @@ class ListenerWidget(QWidget):
                     self.column_width - 1, self.column_height - 1
                 )
                 info = self._channels_info[index]
+
+                if index in self._highlighted_channels:
+                    info.fixture_color = Qt.transparent
+                    info.text_color = Qt.white
 
                 # background
                 painter.setPen(Qt.NoPen)

@@ -9,7 +9,7 @@ from oscartnetdesktop.components.show_items.delegate import ShowItemDelegate
 
 class ShowItemsWidget(QListWidget):
 
-    ShowItemSelected = Signal(ShowItem)
+    showItemSelected = Signal(ShowItem)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -28,4 +28,4 @@ class ShowItemsWidget(QListWidget):
             self.addItem(item)
 
     def _selection_changed(self, row):
-        self.ShowItemSelected.emit(Components().daemon.show_items[row])
+        self.showItemSelected.emit(Components().daemon.show_items[row])
