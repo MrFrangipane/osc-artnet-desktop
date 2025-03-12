@@ -1,3 +1,4 @@
+from copy import deepcopy
 from dataclasses import fields
 
 from PySide6.QtCore import Qt, Signal
@@ -38,6 +39,7 @@ class PatternEditorWidget(QWidget):
         self.line_pattern_name.textChanged.connect(self._name_changed)
 
         self.spin_pattern = QSpinBox()
+
         self.spin_pattern.setRange(1, 11)
         self.spin_pattern.valueChanged.connect(self.update_pattern)
 
@@ -56,13 +58,11 @@ class PatternEditorWidget(QWidget):
         self.button_paste_pattern.clicked.connect(self._paste_pattern_clicked)
 
         self.button_copy_fixture = QPushButton("Copy fixture")
-        self.button_copy_fixture.setEnabled(False)
         self.button_copy_fixture.setIcon(icons.lightbulb())
         self.button_copy_fixture.setToolTip("Copy all fixture patterns")
         self.button_copy_fixture.clicked.connect(self._copy_fixture_clicked)
 
         self.button_paste_fixture = QPushButton("Paste fixture")
-        self.button_paste_fixture.setEnabled(False)
         self.button_paste_fixture.setIcon(icons.lightbulb())
         self.button_paste_fixture.setToolTip("Paste all fixture patterns")
         self.button_paste_fixture.clicked.connect(self._paste_fixture_clicked)
@@ -78,26 +78,28 @@ class PatternEditorWidget(QWidget):
         layout = QGridLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        layout.addWidget(QLabel("Name"), 0, 0)
-        layout.addWidget(self.line_pattern_name, 0, 1)
+        layout.addWidget(QLabel("Pattern"), 0, 0)
+        layout.addWidget(self.spin_pattern, 0, 1)
+        layout.addWidget(self.line_pattern_name, 0, 2)
 
-        layout.addWidget(QLabel("Pattern"), 0, 2)
-        layout.addWidget(self.spin_pattern, 0, 3)
+        layout.addWidget(QLabel("Step count"), 0, 3)
+        layout.addWidget(self.spin_step_count, 0, 4)
 
-        layout.addWidget(QLabel("Step count"), 0, 4)
-        layout.addWidget(self.spin_step_count, 0, 5)
-
+        layout.addWidget(QLabel(""), 0, 5)
         layout.addWidget(self.button_copy_pattern, 0, 6)
         layout.addWidget(self.button_paste_pattern, 0, 7)
-        layout.addWidget(self.button_copy_fixture, 0, 8)
-        layout.addWidget(self.button_paste_fixture, 0, 9)
 
-        layout.addWidget(self.button_shift_left, 0, 10)
-        layout.addWidget(self.button_shift_right, 0, 11)
+        layout.addWidget(QLabel(""), 0, 8)
+        layout.addWidget(self.button_copy_fixture, 0, 9)
+        layout.addWidget(self.button_paste_fixture, 0, 10)
 
-        layout.addWidget(QWidget(), 0, 12)
+        layout.addWidget(QLabel(""), 0, 11)
+        layout.addWidget(self.button_shift_left, 0, 12)
+        layout.addWidget(self.button_shift_right, 0, 13)
 
-        layout.addWidget(self.table, 1, 0, 1, 13)
+        layout.addWidget(QWidget(), 0, 14)
+
+        layout.addWidget(self.table, 1, 0, 1, 15)
 
         layout.setRowStretch(1, 100)
         layout.setColumnStretch(layout.columnCount() - 1, 100)
@@ -113,8 +115,9 @@ class PatternEditorWidget(QWidget):
         PatternStoreAPI.set_wheel_callback(self.wheel_changed)
         self.WheelChanged.connect(self._wheel_changed)  # FIXME use a QObject on the other side ?
 
+        # TODO move this to PatterAPI ?
         self._steps_clipboard: dict[int, [dict[str, int]]] = dict()
-
+        self._fixture_clipboard: list[dict[int, dict[str, int]]] = list()
         self.init_data()
 
     def set_show_item(self, item: ShowItem):
@@ -283,12 +286,32 @@ class PatternEditorWidget(QWidget):
         if self._show_item is None:
             return
         self._set_steps(self._steps_clipboard)
+        self.update_pattern()
 
     def _copy_fixture_clicked(self):
-        pass
+        if self._show_item is None:
+            return
+
+        self._fixture_clipboard.clear()
+        for pattern_index, pattern in enumerate(PatternStoreAPI.pattern_names()):
+            pattern_steps = PatternStoreAPI.get_steps(
+                show_item_info=self._show_item.info,
+                pattern_index=pattern_index
+            )
+            self._fixture_clipboard.append(pattern_steps)
 
     def _paste_fixture_clicked(self):
-        pass
+        if self._show_item is None:
+            return
+
+        for pattern_index, pattern_steps in enumerate(self._fixture_clipboard):
+            PatternStoreAPI.set_steps(
+                show_item_info=self._show_item.info,
+                pattern_index=pattern_index,
+                steps=pattern_steps
+            )
+
+        self.update_pattern()
 
     def _shift_left(self):
         if self._show_item is None:
@@ -296,7 +319,7 @@ class PatternEditorWidget(QWidget):
         PatternStoreAPI.shift_steps(
             show_item_info=self._show_item.info,
             pattern_index=self.spin_pattern.value() - 1,
-            offset=1
+            offset=-1
         )
         self.update_pattern()
 
@@ -306,6 +329,6 @@ class PatternEditorWidget(QWidget):
         PatternStoreAPI.shift_steps(
             show_item_info=self._show_item.info,
             pattern_index=self.spin_pattern.value() - 1,
-            offset=-1
+            offset=1
         )
         self.update_pattern()
