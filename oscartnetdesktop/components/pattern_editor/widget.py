@@ -40,7 +40,7 @@ class PatternEditorWidget(QWidget):
 
         self.spin_pattern = QSpinBox()
 
-        self.spin_pattern.setRange(1, 11)
+        self.spin_pattern.setRange(1, 8)
         self.spin_pattern.valueChanged.connect(self.update_pattern)
 
         self.spin_step_count = QSpinBox()
