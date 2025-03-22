@@ -75,6 +75,11 @@ class PatternEditorWidget(QWidget):
         self.button_shift_right.setToolTip("Shift all steps to the right")
         self.button_shift_right.clicked.connect(self._shift_right)
 
+        self.button_inerpolate = QPushButton("interpolate")
+        self.button_inerpolate.setIcon(icons.wifi())
+        self.button_inerpolate.setToolTip("Creates a linear interpolation between first and last selected steps")
+        self.button_inerpolate.clicked.connect(self._interpolate)
+
         layout = QGridLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
@@ -97,9 +102,12 @@ class PatternEditorWidget(QWidget):
         layout.addWidget(self.button_shift_left, 0, 12)
         layout.addWidget(self.button_shift_right, 0, 13)
 
-        layout.addWidget(QWidget(), 0, 14)
+        layout.addWidget(QLabel(""), 0, 14)
+        layout.addWidget(self.button_inerpolate, 0, 15)
 
-        layout.addWidget(self.table, 1, 0, 1, 15)
+        layout.addWidget(QWidget(), 0, 16)
+
+        layout.addWidget(self.table, 1, 0, 1, 17)
 
         layout.setRowStretch(1, 100)
         layout.setColumnStretch(layout.columnCount() - 1, 100)
@@ -131,6 +139,7 @@ class PatternEditorWidget(QWidget):
         )
 
     def update_pattern(self):
+        PatternStoreAPI.set_current_pattern(self.spin_pattern.value() - 1)
         self.update_pattern_name()
         if self._show_item is None:
             return
@@ -332,3 +341,38 @@ class PatternEditorWidget(QWidget):
             offset=1
         )
         self.update_pattern()
+
+    def _interpolate(self):
+        selected_indexes = self.table.selectionModel().selectedIndexes()
+        if len(selected_indexes) == 0:
+            return
+
+        self._dont_save = True
+        self._dont_propagate_edition = True
+
+        rows = dict()
+        for index in selected_indexes:
+            if index.row() not in rows:
+                rows[index.row()] = {index.column(): index}
+            else:
+                rows[index.row()][index.column()] = index
+
+        for row in rows.values():
+            indexes = {key: row[key] for key in sorted(row)}
+            steps = list(indexes.keys())
+            values = list([int(index.data() if index.data() else 0) for index in indexes.values()])
+            size = steps[-1] - steps[0] + 1
+
+            if values[0] == values[-1] or size < 3:
+                continue
+
+            increment = (values[-1] - values[0]) / (size - 1)
+            for col, index in indexes.items():
+                value = values[0] + (col - steps[0]) * increment
+                self.model.setData(index, str(int(value)), Qt.EditRole)
+
+        self._dont_save = False
+        self._dont_propagate_edition = False
+
+        self._update_fixture()
+        self.save_pattern()
