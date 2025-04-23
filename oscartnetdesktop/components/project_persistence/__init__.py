@@ -26,6 +26,7 @@ def make_menu_actions() -> list[QAction]:
 def _new():
     Components().daemon.new_project()
     Components().show_items_widget.update_list()
+    Components().main_window.setWindowTitle("OSC Artnet Desktop")
 
 
 def _load():
@@ -39,11 +40,14 @@ def _load():
 
     Components().daemon.load_project(filepath)
     Components().show_items_widget.update_list()
+    Components().main_window.setWindowTitle("OSC Artnet Desktop - " + filepath)
 
 
 def _save() -> str:
     if Components().daemon.is_direct_save_available():
-        return Components().daemon.save_project()
+        filepath = Components().daemon.save_project()
+        Components().main_window.setWindowTitle("OSC Artnet Desktop - " + filepath)
+        return filepath
     else:
         return _save_as()
 
@@ -58,6 +62,7 @@ def _save_as() -> str:
         return ""
 
     Components().daemon.save_project_as(filepath)
+    Components().main_window.setWindowTitle("OSC Artnet Desktop - " + filepath)
     return filepath
 
 
@@ -68,6 +73,7 @@ def on_startup():
     if filepath:
         Components().daemon.load_project(filepath)
         Components().show_items_widget.update_list()
+        Components().main_window.setWindowTitle("OSC Artnet Desktop - " + filepath)
     else:
         _new()
 

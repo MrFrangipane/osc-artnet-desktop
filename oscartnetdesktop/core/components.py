@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from PySide6.QtWidgets import QDockWidget
+from PySide6.QtWidgets import QDockWidget, QMainWindow
 
 from oscartnetdaemon import OSCArtnetDaemonAPI
 
@@ -15,3 +15,4 @@ class Components(metaclass=SingletonMetaclass):
     daemon = OSCArtnetDaemonAPI()
     show_items_widget = None  # TODO use abstract class
     logger_dock_widget: QDockWidget = None
+    main_window: QMainWindow = None
