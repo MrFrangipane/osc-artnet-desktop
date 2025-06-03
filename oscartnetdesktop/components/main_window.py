@@ -4,14 +4,13 @@ from PySide6.QtCore import QSettings, Signal
 from PySide6.QtGui import QPixmap, QIcon, QAction
 from PySide6.QtWidgets import QMainWindow, QLabel
 
-from pyside6helpers import icons
-
 from oscartnetdesktop.core.components import Components
 from oscartnetdesktop.components.project_persistence import make_menu_actions
 
 
 class MainWindow(QMainWindow):
     shown = Signal()
+    shownOnce = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -32,6 +31,8 @@ class MainWindow(QMainWindow):
 
         self._file_menu_actions = list()
         self.make_file_menu()
+
+        self._show_once = False
 
         self.load_geometry()
 
@@ -64,6 +65,9 @@ class MainWindow(QMainWindow):
 
     def showEvent(self, event):
         self.shown.emit()
+        if not self._show_once:
+            self._show_once = True
+            self.shownOnce.emit()
         event.accept()
 
     def save_geometry(self):

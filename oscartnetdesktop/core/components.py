@@ -14,5 +14,6 @@ class Components(metaclass=SingletonMetaclass):
     configuration = Configuration()
     daemon = OSCArtnetDaemonAPI()
     show_items_widget = None  # TODO use abstract class
+    daemon_starter = None  # TODO use abstract class
     logger_dock_widget: QDockWidget = None
     main_window: QMainWindow = None

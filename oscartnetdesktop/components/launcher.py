@@ -52,6 +52,10 @@ class Launcher(QObject):
         self._central_widget = CentralWidget()
         self._main_window.setCentralWidget(self._central_widget)
 
+        if Components().configuration.auto_start:
+            # daemon_starter exists after central widget
+            self._main_window.shownOnce.connect(Components().daemon_starter.start_restart)
+
         #
         # Project
         project_persistence.on_startup()
