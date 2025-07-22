@@ -176,7 +176,6 @@ class PatternEditorWidget(QWidget):
                 if name not in self._field_names:
                     continue
                 row = self._field_names.index(name)
-                self.model.setItem(row, 0, QStandardItem("X"))
                 self.model.setItem(row, step_index + 1, QStandardItem(str(value)))
 
         self._dont_save = False
@@ -195,10 +194,20 @@ class PatternEditorWidget(QWidget):
         if self._show_item is None:
             return
 
+        # FIXME create functions to translate to/from headers
+        row_count = range(self.model.rowCount())
+        inverted_keys = list()
+        for row in row_count:
+            item = self.model.item(row, 0)
+            if item is not None and item.data(Qt.DisplayRole):
+                row_name = self.model.headerData(row, Qt.Vertical, Qt.DisplayRole)
+                row_name = row_name.replace(' ', '_').lower()
+                inverted_keys.append(row_name)
+
         steps = dict()
         for col in range(self.spin_step_count.value()):
             step = {}
-            for row in range(self.model.rowCount()):
+            for row in row_count:
                 item = self.model.item(row, col + 1)
                 if item is not None:
                     if item.text():
@@ -208,7 +217,8 @@ class PatternEditorWidget(QWidget):
         PatternStoreAPI.set_steps(
             show_item_info=self._show_item.info,
             pattern_index=self.spin_pattern.value() - 1,
-            steps=steps
+            steps=steps,
+            inverted_keys=inverted_keys
         )
 
     def wheel_changed(self, value):
@@ -248,7 +258,7 @@ class PatternEditorWidget(QWidget):
             return
 
         self.model.setColumnCount(length + 1)
-        self.model.setHorizontalHeaderLabels(["Active"] + [str(i + 1) for i in range(length)])
+        self.model.setHorizontalHeaderLabels(["Invert"] + [str(i + 1) for i in range(length)])
         self.save_pattern()
 
     # fixme: a bit messy, unify PatternStoreAPI and fixtureUpdater  apis ?
@@ -263,13 +273,21 @@ class PatternEditorWidget(QWidget):
         )
 
     def _item_changed(self, item):
-        if item.column() == 0 or self._dont_propagate_edition:
+        if self._dont_propagate_edition:
             return
 
-        self._dont_save = True
-        for index in self.table.selectionModel().selectedIndexes():
-            self.model.setData(index, str(self._value(item)), Qt.EditRole)
-        self._dont_save = False
+        if item.column() == 0:
+            value = item.data(Qt.DisplayRole)
+            if isinstance(value, bool):
+                self._dont_save = True
+                for index in self.table.selectionModel().selectedIndexes():
+                    self.model.setData(index, str(self._value(item)), Qt.EditRole)
+                self._dont_save = False
+        else:
+            self._dont_save = True
+            for index in self.table.selectionModel().selectedIndexes():
+                self.model.setData(index, str(self._value(item)), Qt.EditRole)
+            self._dont_save = False
 
         PatternStoreAPI.set_wheel_value(float(self._value(item)) / 255.0)
         self.save_pattern()
