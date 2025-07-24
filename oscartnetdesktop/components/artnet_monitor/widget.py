@@ -31,4 +31,4 @@ class ArtnetMonitorWidget(QWidget):
         )
 
     def highlight(self, info: ShowItemInfo):
-        self._listener.set_highlight(list(range(info.channel_info.first, info.channel_info.last + 1)))
+        self._listener.set_highlight(list(range(info.channel_info.first, info.channel_info.last)))

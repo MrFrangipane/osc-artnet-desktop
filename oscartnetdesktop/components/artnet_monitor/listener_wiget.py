@@ -49,8 +49,7 @@ class ListenerWidget(QWidget):
                 info = self._channels_info[index]
 
                 if index in self._highlighted_channels:
-                    info.fixture_color = Qt.transparent
-                    info.text_color = Qt.white
+                    info.fixture_color = info.fixture_color.darker(170)
 
                 # background
                 painter.setPen(Qt.NoPen)
