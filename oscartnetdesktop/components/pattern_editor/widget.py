@@ -4,6 +4,7 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 from PySide6.QtWidgets import QWidget, QGridLayout, QSpinBox, QLabel, QLineEdit, QPushButton
 
+from oscartnetdaemon.core.pattern.store_containers import PatternStepContainer
 from oscartnetdesktop.core.components import Components
 from pyside6helpers import icons
 from pyside6helpers.item_delegates.boolean import BooleanDelegate
@@ -156,18 +157,27 @@ class PatternEditorWidget(QWidget):
         if self._show_item is None:
             return
 
-        steps = PatternStoreAPI.get_steps(
+        step = PatternStoreAPI.get_step_container(
             show_item_info=self._show_item.info,
             pattern_index=self.spin_pattern.value() - 1
         )
-        self._set_steps(steps)
+        self._set_step_container(step)
 
-    def _set_steps(self, steps: dict[int, [dict[str, int]]]):
+    def _set_step_container(self, step: PatternStepContainer):
         self._dont_save = True
         self.init_data()
 
         self._field_names = [field.name for field in fields(self._show_item.fixture.Mapping)]
         self.model.setVerticalHeaderLabels([name.replace('_', ' ').capitalize() for name in self._field_names])
+
+        for row, name in enumerate(self._field_names):
+            if name in step.inverted_keys:
+                self.model.setItem(row, 0, QStandardItem("X"))
+
+        self._set_steps(step.step)
+
+    def _set_steps(self, steps: dict[int, dict[str, int]]):
+        self._dont_save = True
 
         self.spin_step_count.setValue(len(steps))
 
@@ -316,10 +326,10 @@ class PatternEditorWidget(QWidget):
         if self._show_item is None:
             return
 
-        self._steps_clipboard = PatternStoreAPI.get_steps(
+        self._steps_clipboard = PatternStoreAPI.get_step_container(
             show_item_info=self._show_item.info,
             pattern_index=self.spin_pattern.value() - 1
-        )
+        ).step.copy()
 
     def _paste_pattern_clicked(self):
         if self._show_item is None:
@@ -333,21 +343,26 @@ class PatternEditorWidget(QWidget):
 
         self._fixture_clipboard.clear()
         for pattern_index, pattern in enumerate(PatternStoreAPI.pattern_names()):
-            pattern_steps = PatternStoreAPI.get_steps(
+            pattern_steps = PatternStoreAPI.get_step_container(
                 show_item_info=self._show_item.info,
                 pattern_index=pattern_index
             )
-            self._fixture_clipboard.append(pattern_steps)
+            self._fixture_clipboard.append(pattern_steps.step.copy())
 
     def _paste_fixture_clicked(self):
         if self._show_item is None:
             return
 
         for pattern_index, pattern_steps in enumerate(self._fixture_clipboard):
+            step_container = PatternStoreAPI.get_step_container(
+                show_item_info=self._show_item.info,
+                pattern_index=pattern_index
+            )
             PatternStoreAPI.set_steps(
                 show_item_info=self._show_item.info,
                 pattern_index=pattern_index,
-                steps=pattern_steps
+                steps=pattern_steps,
+                inverted_keys=step_container.inverted_keys
             )
 
         self.update_pattern()
@@ -357,19 +372,24 @@ class PatternEditorWidget(QWidget):
         pattern_index = self.spin_pattern.value() - 1
 
         for show_item in Components().daemon.show_items:
-            pattern_steps = PatternStoreAPI.get_steps(
+            pattern_steps = PatternStoreAPI.get_step_container(
                 show_item_info=show_item.info,
                 pattern_index=pattern_index
-            )
+            ).step.copy()
             self._pattern_clipboard[show_item.info.fixture_index] = pattern_steps
 
     def _paste_whole_pattern_clicked(self):
         pattern_index = self.spin_pattern.value() - 1
         for show_item in Components().daemon.show_items:
+            step_container = PatternStoreAPI.get_step_container(
+                show_item_info=show_item.info,
+                pattern_index=pattern_index
+            )
             PatternStoreAPI.set_steps(
                 show_item_info=show_item.info,
                 pattern_index=pattern_index,
-                steps=self._pattern_clipboard[show_item.info.fixture_index]
+                steps=self._pattern_clipboard[show_item.info.fixture_index],
+                inverted_keys=step_container.inverted_keys
             )
 
         self.update_pattern()
