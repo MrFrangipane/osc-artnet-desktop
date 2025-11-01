@@ -93,36 +93,36 @@ class PatternEditorWidget(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         layout.addWidget(self.button_copy_whole_pattern, 0, 0)
-        layout.addWidget(self.button_paste_whole_pattern, 0, 1)
+        layout.addWidget(self.button_paste_whole_pattern, 1, 0)
 
-        layout.addWidget(QLabel("Pattern"), 0, 2)
-        layout.addWidget(self.spin_pattern, 0, 3)
-        layout.addWidget(self.line_pattern_name, 0, 4)
+        layout.addWidget(QLabel("Pattern"), 2, 0)
+        layout.addWidget(self.spin_pattern, 3, 0)
+        layout.addWidget(self.line_pattern_name, 4, 0)
 
-        layout.addWidget(QLabel("Step count"), 0, 5)
-        layout.addWidget(self.spin_step_count, 0, 6)
+        layout.addWidget(QLabel("Step count"), 5, 0)
+        layout.addWidget(self.spin_step_count, 6, 0)
 
-        layout.addWidget(QLabel(""), 0, 7)
-        layout.addWidget(self.button_copy_pattern, 0, 8)
-        layout.addWidget(self.button_paste_pattern, 0, 9)
+        layout.addWidget(QLabel(""), 7, 0)
+        layout.addWidget(self.button_copy_pattern, 8, 0)
+        layout.addWidget(self.button_paste_pattern, 9, 0)
 
-        layout.addWidget(QLabel(""), 0, 10)
-        layout.addWidget(self.button_copy_fixture, 0, 11)
-        layout.addWidget(self.button_paste_fixture, 0, 12)
+        layout.addWidget(QLabel(""), 10, 0)
+        layout.addWidget(self.button_copy_fixture, 11, 0)
+        layout.addWidget(self.button_paste_fixture, 12, 0)
 
-        layout.addWidget(QLabel(""), 0, 13)
-        layout.addWidget(self.button_shift_left, 0, 14)
-        layout.addWidget(self.button_shift_right, 0, 15)
+        layout.addWidget(QLabel(""), 13, 0)
+        layout.addWidget(self.button_shift_left, 14, 0)
+        layout.addWidget(self.button_shift_right, 15, 0)
 
-        layout.addWidget(QLabel(""), 0, 16)
-        layout.addWidget(self.button_inerpolate, 0, 17)
+        layout.addWidget(QLabel(""), 16, 0)
+        layout.addWidget(self.button_inerpolate, 17, 0)
 
-        layout.addWidget(QWidget(), 0, 18)
+        layout.addWidget(QWidget(), 18, 0)
 
-        layout.addWidget(self.table, 1, 0, 1, 19)
+        layout.addWidget(self.table, 0, 1, 19, 1)
 
-        layout.setRowStretch(1, 100)
-        layout.setColumnStretch(layout.columnCount() - 1, 100)
+        layout.setColumnStretch(1, 100)
+        layout.setRowStretch(layout.rowCount() - 1, 100)
 
         self.table.horizontalHeader().setDefaultSectionSize(20)
 
